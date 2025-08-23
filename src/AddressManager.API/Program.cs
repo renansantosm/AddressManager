@@ -33,6 +33,7 @@ builder.Services.AddSwaggerGen(c =>
 }); 
 
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddMemoryCache();
 
 builder.Services.AddMvc(options =>
 {

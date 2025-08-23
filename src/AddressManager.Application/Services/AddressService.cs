@@ -6,6 +6,7 @@ using AddressManager.Domain.Interfaces;
 using AddressManager.Domain.Value_Objects;
 using AddressManager.Domain.ValueObjects;
 using FluentValidation;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace AddressManager.Application.Services;
 
@@ -15,13 +16,15 @@ public class AddressService : IAddressService
     private readonly IValidator<CreateAddressDto> _createValidator;
     private readonly IValidator<UpdateAddressDto> _updateValidator;
     private readonly IViaCepClient _viaCepClient;
+    private readonly IMemoryCache _cache;
 
-    public AddressService(IUnitOfWork unitOfWork, IViaCepClient viaCepClient, IValidator<CreateAddressDto> createValidator, IValidator<UpdateAddressDto> updateValidator)
+    public AddressService(IUnitOfWork unitOfWork, IViaCepClient viaCepClient, IValidator<CreateAddressDto> createValidator, IValidator<UpdateAddressDto> updateValidator, IMemoryCache memoryCache)
     {
         _unitOfWork = unitOfWork;
         _viaCepClient = viaCepClient;
         _createValidator = createValidator;
         _updateValidator = updateValidator;
+        _cache = memoryCache;
     }
 
     public async Task<IEnumerable<AddressDto>> GetAllAddressesAsync(int pageNumber, int pageSize)
@@ -77,7 +80,14 @@ public class AddressService : IAddressService
 
         var normalizedZipCode = addressDto.ZipCode.Replace("-", "").Trim();
 
-        var viaCepData = await _viaCepClient.GetAddressByZipCodeAsync(normalizedZipCode);
+        var cacheKey = $"address_{normalizedZipCode}";
+
+        var viaCepData = await _cache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
+
+            return await _viaCepClient.GetAddressByZipCodeAsync(normalizedZipCode);
+        });
 
         if (viaCepData is null)
         {
