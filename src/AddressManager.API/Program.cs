@@ -1,6 +1,7 @@
 ﻿using AddressManager.API.Filters;
 using AddressManager.Infra.Data.Extensions;
 using AddressManager.Infra.IoC;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.OpenApi.Models;
 
@@ -31,7 +32,20 @@ builder.Services.AddSwaggerGen(c =>
     var xmlFile = $"{typeof(Program).Assembly.GetName().Name}.xml";
     c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFile));
 
-}); 
+});
+
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
+;
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddMemoryCache();

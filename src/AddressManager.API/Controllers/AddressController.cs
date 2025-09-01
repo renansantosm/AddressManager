@@ -1,11 +1,14 @@
 ﻿using AddressManager.Application.DTOs;
 using AddressManager.Application.Interfaces;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AddressManager.API.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/v{version:apiVersion}/addresses")]
+[ApiVersion("1.0")]
 [ApiController]
+
 public class AddressController : ControllerBase
 {
     private readonly IAddressService _addressService;
