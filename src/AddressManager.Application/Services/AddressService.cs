@@ -48,7 +48,13 @@ public class AddressService : IAddressService
 
     public async Task<AddressDto> GetAddressByIdAsync(Guid id)
     {
-        var address = await _unitOfWork.AddressRepository.GetByIdAsNoTrackingAsync(id);
+        var cacheKey = $"address:{id}";
+
+        var address = await _cache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(5));
+            return await _unitOfWork.AddressRepository.GetByIdAsNoTrackingAsync(id);
+        });
 
         if (address is null)
         {
@@ -80,7 +86,7 @@ public class AddressService : IAddressService
 
         var normalizedZipCode = addressDto.ZipCode.Replace("-", "").Trim();
 
-        var cacheKey = $"address_{normalizedZipCode}";
+        var cacheKey = $"viacepdata:{normalizedZipCode}";
 
         var viaCepData = await _cache.GetOrCreateAsync(cacheKey, async entry =>
         {
@@ -169,6 +175,9 @@ public class AddressService : IAddressService
 
         await _unitOfWork.AddressRepository.UpdateAsync(address);
         await _unitOfWork.Commit();
+
+        var cacheKey = $"address:{addressDto.Id}";
+        _cache.Remove(cacheKey);
     }
 
     public async Task DeleteAddressAsync(Guid id)
@@ -177,6 +186,9 @@ public class AddressService : IAddressService
 
         await _unitOfWork.AddressRepository.DeleteAsync(address);
         await _unitOfWork.Commit();
+
+        var cacheKey = $"address:{id}";
+        _cache.Remove(cacheKey);
     }
 
     private async Task<Address> GetAddressEntityByIdAsync(Guid id)

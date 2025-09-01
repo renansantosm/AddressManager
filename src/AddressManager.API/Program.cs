@@ -1,4 +1,5 @@
-using AddressManager.API.Filters;
+ï»¿using AddressManager.API.Filters;
+using AddressManager.Infra.Data.Extensions;
 using AddressManager.Infra.IoC;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.OpenApi.Models;
@@ -23,7 +24,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Version = "v1",
         Title = "Address Manager",
-        Description = "Esta API permite a consulta de informações de endereços a partir de um CEP.  \n\nEla se integra ao serviço da ViaCEP para buscar os dados de logradouro, bairro, cidade, estado e região, e em seguida, salva essas informações em um banco de dados local.  \n\nO principal objetivo deste projeto é demonstrar a habilidade de realizar integrações com APIs de terceiros de forma robusta e eficiente, utilizando o serviço da ViaCEP para enriquecer os dados e fornecer um serviço centralizado para gerenciamento de endereços.",
+        Description = "Esta API permite a consulta de informaÃ§Ãµes de endereÃ§os a partir de um CEP.  \n\nEla se integra ao serviÃ§o da ViaCEP para buscar os dados de logradouro, bairro, cidade, estado e regiÃ£o, e em seguida, salva essas informaÃ§Ãµes em um banco de dados local.  \n\nO principal objetivo deste projeto Ã© demonstrar a habilidade de realizar integraÃ§Ãµes com APIs de terceiros de forma robusta e eficiente, utilizando o serviÃ§o da ViaCEP para enriquecer os dados e fornecer um serviÃ§o centralizado para gerenciamento de endereÃ§os.",
         Contact = new OpenApiContact { Name = "Renan Moreira", Email = "renan.h.s.moreira@gmail.com", Url = new Uri("https://github.com/renansantosm") },
     });
 
@@ -52,6 +53,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+DatabaseExtensions.AddDatabase(app);
 
 app.UseHttpsRedirection();
 app.UseRouting();
