@@ -1,9 +1,10 @@
-﻿using AddressManager.API.Filters;
+﻿using AddressManager.API.Middlewares;
 using AddressManager.Infra.Data.Extensions;
 using AddressManager.Infra.IoC;
 using Asp.Versioning;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,9 +51,14 @@ builder.Services.AddApiVersioning(options =>
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddMemoryCache();
 
-builder.Services.AddMvc(options =>
+builder.Host.UseSerilog((context, configuration) =>
 {
-    options.Filters.Add(new ExceptionFilter());
+    configuration
+    .WriteTo.Console(
+            outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} <s:{SourceContext}>{NewLine}{Exception}", 
+            theme: AnsiConsoleTheme.Literate
+    )
+    .ReadFrom.Configuration(context.Configuration);
 });
 
 var app = builder.Build();
@@ -66,6 +72,8 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "AddressManager API v1");
     });
 }
+
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();  
 
 DatabaseExtensions.AddDatabase(app);
 

@@ -7,6 +7,7 @@ using AddressManager.Domain.Value_Objects;
 using AddressManager.Domain.ValueObjects;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 namespace AddressManager.Application.Services;
 
@@ -17,14 +18,16 @@ public class AddressService : IAddressService
     private readonly IValidator<UpdateAddressDto> _updateValidator;
     private readonly IViaCepClient _viaCepClient;
     private readonly IMemoryCache _cache;
+    private readonly ILogger<AddressService> _logger;
 
-    public AddressService(IUnitOfWork unitOfWork, IViaCepClient viaCepClient, IValidator<CreateAddressDto> createValidator, IValidator<UpdateAddressDto> updateValidator, IMemoryCache memoryCache)
+    public AddressService(IUnitOfWork unitOfWork, IViaCepClient viaCepClient, IValidator<CreateAddressDto> createValidator, IValidator<UpdateAddressDto> updateValidator, IMemoryCache memoryCache, ILogger<AddressService> logger)
     {
         _unitOfWork = unitOfWork;
         _viaCepClient = viaCepClient;
         _createValidator = createValidator;
         _updateValidator = updateValidator;
         _cache = memoryCache;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<AddressDto>> GetAllAddressesAsync(int pageNumber, int pageSize)
@@ -48,6 +51,8 @@ public class AddressService : IAddressService
 
     public async Task<AddressDto> GetAddressByIdAsync(Guid id)
     {
+        _logger.LogInformation("Fetching address with ID {AddressId}", id);
+
         var cacheKey = $"address:{id}";
 
         var address = await _cache.GetOrCreateAsync(cacheKey, async entry =>
@@ -58,6 +63,8 @@ public class AddressService : IAddressService
 
         if (address is null)
         {
+            _logger.LogWarning("Address with ID {AddressId} not found", id);
+
             throw new AddressNotFoundException($"Endereço com o ID '{id}' não encontrado");
         }
 
@@ -77,6 +84,8 @@ public class AddressService : IAddressService
 
     public async Task<AddressDto> CreateAddressAsync(CreateAddressDto addressDto)
     {
+        _logger.LogInformation("Creating address from ZipCode {ZipCode}", addressDto.ZipCode);
+
         var result = _createValidator.Validate(addressDto);
 
         if (!result.IsValid)
@@ -88,17 +97,18 @@ public class AddressService : IAddressService
 
         var cacheKey = $"viacepdata:{normalizedZipCode}";
 
+        _logger.LogInformation("Fetching ViaCEP data for ZipCode {ZipCode}", addressDto.ZipCode);
+
         var viaCepData = await _cache.GetOrCreateAsync(cacheKey, async entry =>
         {
+            _logger.LogInformation("Cache miss for ZipCode {ZipCode} - fetching from ViaCEP", addressDto.ZipCode);
+
             entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
 
             return await _viaCepClient.GetAddressByZipCodeAsync(normalizedZipCode);
         });
 
-        if (viaCepData is null)
-        {
-            throw new AddressNotFoundException($"CEP '{addressDto.ZipCode}' não encontrado");
-        }
+        _logger.LogInformation("Creating Address entity with ViaCEP data for ZipCode {ZipCode}", addressDto.ZipCode);
 
         var address = new Address(
             id: Guid.NewGuid(),
@@ -110,23 +120,14 @@ public class AddressService : IAddressService
             Region.Create(viaCepData.Region)
         );
 
-        if (!string.IsNullOrWhiteSpace(addressDto.Number))
-        {
-            address.UpdateNumber(addressDto.Number);
-        }
+        var addressWithOptionalFields = UpdateAddressOptionalFields(address, addressDto.Number, addressDto.Complement, addressDto.Reference);
 
-        if (!string.IsNullOrWhiteSpace(addressDto.Complement))
-        {
-            address.UpdateComplement(addressDto.Complement);
-        }
-
-        if (!string.IsNullOrWhiteSpace(addressDto.Reference))
-        {
-            address.UpdateReference(addressDto.Reference);
-        }
-
-        var addressCreated = await _unitOfWork.AddressRepository.AddAsync(address);
+        var addressCreated = await _unitOfWork.AddressRepository.AddAsync(addressWithOptionalFields);
         await _unitOfWork.Commit();
+
+        _logger.LogInformation("Address {AddressId} persisted to database", addressCreated.Id);
+
+        _logger.LogInformation("Successfully created Address with ID {AddressId} for ZipCode {ZipCode}", addressCreated.Id, addressDto.ZipCode);
 
         return new AddressDto(
             Id: addressCreated.Id,
@@ -144,6 +145,8 @@ public class AddressService : IAddressService
 
     public async Task UpdateAddressAsync(UpdateAddressDto addressDto)
     {
+        _logger.LogInformation("Updating address with ID {AddressId}", addressDto.Id);
+
         var result = _updateValidator.Validate(addressDto);
 
         if (!result.IsValid)
@@ -151,30 +154,15 @@ public class AddressService : IAddressService
             throw new ValidationException(result.Errors);
         }
 
+        _logger.LogInformation("Fetching address entity with ID {AddressId} for update", addressDto.Id);
         var address = await GetAddressEntityByIdAsync(addressDto.Id);
 
-        if (address is null)
-        {
-            throw new AddressNotFoundException($"Endereço com o ID '{addressDto.Id}' não encontrado");
-        }
+        var addressWithOptionalFieldsUpdated = UpdateAddressOptionalFields(address, addressDto.Number, addressDto.Complement, addressDto.Reference);
 
-        if (!string.IsNullOrWhiteSpace(addressDto.Number))
-        {
-            address.UpdateNumber(addressDto.Number);
-        }
-
-        if (!string.IsNullOrWhiteSpace(addressDto.Complement))
-        {
-            address.UpdateComplement(addressDto.Complement);
-        }
-
-        if (!string.IsNullOrWhiteSpace(addressDto.Reference))
-        {
-            address.UpdateReference(addressDto.Reference);
-        }
-
-        await _unitOfWork.AddressRepository.UpdateAsync(address);
+        await _unitOfWork.AddressRepository.UpdateAsync(addressWithOptionalFieldsUpdated);
         await _unitOfWork.Commit();
+
+        _logger.LogInformation("Address with ID {AddressId} successfully updated", addressDto.Id);
 
         var cacheKey = $"address:{addressDto.Id}";
         _cache.Remove(cacheKey);
@@ -182,10 +170,15 @@ public class AddressService : IAddressService
 
     public async Task DeleteAddressAsync(Guid id)
     {
+        _logger.LogInformation("Deleting address with ID {AddressId}", id);
+
+        _logger.LogInformation("Fetching address entity with ID {AddressId} for deletion", id);
         var address = await GetAddressEntityByIdAsync(id);
 
         await _unitOfWork.AddressRepository.DeleteAsync(address);
         await _unitOfWork.Commit();
+
+        _logger.LogInformation("Address with ID {AddressId} successfully deleted", id);
 
         var cacheKey = $"address:{id}";
         _cache.Remove(cacheKey);
@@ -197,8 +190,31 @@ public class AddressService : IAddressService
 
         if (address is null)
         {
+            _logger.LogWarning("Address with ID {AddressId} not found", id);
+
             throw new AddressNotFoundException($"Endereço com o ID '{id}' não encontrado");
         }
+
+        return address;
+    }
+
+    private Address UpdateAddressOptionalFields(Address address, string? number, string? complement, string? reference)
+    {
+        if (!string.IsNullOrWhiteSpace(number))
+        {
+            address.UpdateNumber(number);
+        }
+
+        if (!string.IsNullOrWhiteSpace(complement))
+        {
+            address.UpdateComplement(complement);
+        }
+
+        if (!string.IsNullOrWhiteSpace(reference))
+        {
+            address.UpdateReference(reference);
+        }
+
         return address;
     }
 }

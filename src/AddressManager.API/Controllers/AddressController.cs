@@ -12,10 +12,12 @@ namespace AddressManager.API.Controllers;
 public class AddressController : ControllerBase
 {
     private readonly IAddressService _addressService;
+    private readonly ILogger<AddressController> _logger;
 
-    public AddressController(IAddressService addressService)
+    public AddressController(IAddressService addressService, ILogger<AddressController> logger)
     {
         _addressService = addressService;
+        _logger = logger;
     }
 
     /// <summary>
@@ -31,6 +33,7 @@ public class AddressController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<AddressDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<AddressDto>>> Get([FromRoute] int pageNumber = 1, [FromRoute] int pageSize = 25)
     {
+        _logger.LogInformation("Received request to get addresses - Page {PageNumber}, Size {PageSize}", pageNumber, pageSize);
         var addresses = await _addressService.GetAllAddressesAsync(pageNumber, pageSize);
 
         return Ok(addresses);
@@ -49,6 +52,7 @@ public class AddressController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<AddressDto>> Get([FromRoute] Guid id)
     {
+        _logger.LogInformation("Received request to get address {AddressId}", id);
         var address = await _addressService.GetAddressByIdAsync(id);
 
         return Ok(address);
@@ -69,6 +73,7 @@ public class AddressController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<AddressDto>> Post([FromBody] CreateAddressDto addressDto)
     {
+        _logger.LogInformation("Received request to create address with ZipCode {ZipCode}", addressDto.ZipCode);
         var createdAddress = await _addressService.CreateAddressAsync(addressDto);
 
         return CreatedAtAction(nameof(Get), new { id = createdAddress.Id }, createdAddress);
@@ -89,8 +94,11 @@ public class AddressController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] UpdateAddressDto addressDto)
     {
+        _logger.LogInformation("Received request to update address {AddressId}", id);
+
         if (id != addressDto.Id)
         {
+            _logger.LogWarning("ID mismatch in update request - URL: {UrlId}, Body: {BodyId}", id, addressDto.Id);
             return BadRequest("O ID do endereço não corresponde ao ID fornecido na URL.");
         }
 
@@ -112,6 +120,7 @@ public class AddressController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
+        _logger.LogInformation("Received request to delete address {AddressId}", id);
         await _addressService.DeleteAddressAsync(id);
 
         return NoContent();

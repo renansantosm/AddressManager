@@ -17,6 +17,7 @@ public class AddressRepository : IAddressRepository
     {
         return await _context.Addresses
                         .AsNoTracking()
+                        .OrderBy(x => x.Id)
                         .Skip((pageNumber - 1) * pageSize)
                         .Take(pageSize)
                         .ToListAsync();
