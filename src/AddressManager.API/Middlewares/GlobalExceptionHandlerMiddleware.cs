@@ -32,37 +32,33 @@ public class GlobalExceptionHandlerMiddleware
                         g => g.Key,
                         g => g.Select(e => e.ErrorMessage).ToArray());
 
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-
-            await context.Response.WriteAsJsonAsync(new { Errors = errors });
+            await WriteResponseAsync(context, StatusCodes.Status400BadRequest, new { Errors = errors });
         }
         catch (AddressNotFoundException ex)
         {
             _logger.LogInformation("Address not found on {RequestMethod} {RequestPath}", requestMethod, requestPath);
-
-            context.Response.StatusCode = StatusCodes.Status404NotFound;
-            await context.Response.WriteAsJsonAsync(new { Error = ex.Message });
+            await WriteResponseAsync(context, StatusCodes.Status404NotFound, new { Error = ex.Message });
         }
         catch (DomainValidationException ex)
         {
             _logger.LogInformation("Domain validation failed - {RequestMethod} {RequestPath}", requestMethod, requestPath);
-
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            await context.Response.WriteAsJsonAsync(new { Error = ex.Message });
+            await WriteResponseAsync(context, StatusCodes.Status400BadRequest, new { Error = ex.Message });
         }
         catch (ExternalServiceException ex)
         {
             _logger.LogError("External service error - {RequestMethod} {RequestPath}", requestMethod, requestPath);
-
-            context.Response.StatusCode = StatusCodes.Status502BadGateway;
-            await context.Response.WriteAsJsonAsync(new { Error = ex.Message });
+            await WriteResponseAsync(context, StatusCodes.Status502BadGateway, new { Error = ex.Message });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An unexpected error occurred - {RequestMethod} {RequestPath}", requestMethod, requestPath);
-
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            await context.Response.WriteAsJsonAsync(new { Error = "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde." });
+            await WriteResponseAsync(context, StatusCodes.Status500InternalServerError , new { Error = "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde." });
         }
+    }
+
+    private Task WriteResponseAsync(HttpContext context, int statusCode, object response)
+    {
+        context.Response.StatusCode = statusCode;
+        return context.Response.WriteAsJsonAsync(response);
     }
 }

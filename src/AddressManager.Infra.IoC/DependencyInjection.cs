@@ -38,7 +38,8 @@ public static class DependencyInjection
         {
             client.BaseAddress = new Uri("https://viacep.com.br/");
             client.DefaultRequestHeaders.Add("Accept", "application/json");
-        });
+        })
+        .AddStandardResilienceHandler();
 
         // Services
         services.AddScoped<IAddressService, AddressService>();
