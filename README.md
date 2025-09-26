@@ -4,33 +4,36 @@
 API RESTful desenvolvida em .NET para o cadastro e gerenciamento de endereços, com um diferencial : a automação, resiliência e validação de dados através da integração com a API externa ViaCEP.
 
 ## ✨ Funcionalidades Principais
-* 🔎 **Cadastro Automatizado de Endereços**: Automatiza a criação um novo endereço completo a partir do CEP, consultando a ViaCEP para obter os dados.
-* ⚡ **Cache Inteligente**: Armazena em memória (IMemoryCache) as respostas da ViaCEP para otimizar o desempenho e reduzir chamadas externas repetitivas para o mesmo CEP.
-* 🛡️ **Tratamento Global de Exceções**: Um middleware centralizado captura exceções, tanto personalizadas quanto inesperadas, e retorna respostas de erro padronizadas para o cliente.
-* 🔎 **Logging Estruturado**: Logs detalhados com Serilog em pontos-chave do fluxo de requisição (Controller, Services, Clients HTTP) para garantir um rastreamento completo da operação
-* 🔄 **Resiliência em Chamadas Externas**: Protege a aplicação contra falhas temporárias na comunicação com a API do ViaCEP usando políticas de resiliência (Retry, Circuit Breaker) do Microsoft.Extensions.Http.Resilience.
-* 📖 **Documentação Swagger**: Interface interativa com exemplos e descrições detalhadas
+* 🔎 **Cadastro Automatizado**: Cria endereços completos a partir do CEP, garantindo dados precisos através da integração com a ViaCEP.
+* ⚡ **Cache Inteligente**: Otimiza o desempenho com cache (IMemoryCache) das respostas da ViaCEP, evitando chamadas repetitivas
+* 🛡️ **Tratamento Global de Exceções**: Um Middleware centralizado para tratamento de erros, garantindo respostas de API consistentes.
+* 🔎 **Logging Estruturado**: Rastreamento completo das operações com logs estruturados (Serilog) em pontos-chave do fluxo.
+* 🔄 **Resiliência em Chamadas Externas**: Políticas de resiliência (Retry & Circuit Breaker) para proteger a comunicação com APIs externas.
+* 📖 **Documentação Swagger**: API documentada com Swagger/OpenAPI e detalhada através de comentários XML no código.
 
 ## 🛠️ Tecnologias e Arquitetura
-* **.NET 9** - Framework principal
-* **Entity Framework Core** - ORM
-* **SQL Server** - Banco de dados
-* **Serilog** - Logging estruturado
-* **FluentValidation** - Validações de entrada
-* **IMemoryCache** - Sistema de cache
-* **Microsoft.Extensions.Http.Resilience** - Resiliência em requisições HTTP
-* **Docker** - Containerização
+* **.NET 9** - Framework para a construção da API
+* **Entity Framework Core** - ORM para acesso a dados
+* **SQL Server** - Banco de dados relacional
+* **Serilog** - Provedor de logging estruturado
+* **FluentValidation** - Biblioteca para validações de entrada
+* **IMemoryCache** - Cache em memória para otimização de performance
+* **Microsoft.Extensions.Http.Resilience** - Políticas de resiliência para chamadas HTTP
+* **Docker** - Containerização da aplicação e do banco de dados
 
-### Padrões e Princípios
-* **Clean Architecture** - Separação clara entre Domain, Application, Infrastructure e API
-* **DDD** - Value Objects, validações de domínio e Entity IDs tipados
-* **Factory Pattern** - Criação encapsulada de Value Objects
-* **Repository Pattern** - Abstração da camada de persistência
-* **Unit of Work** - Controle transacional e coordenação de repositórios
+## 🏗️ Arquitetura e Padrões de Design
+
+### Princípios Arquiteturais
+- **Clean Architecture:** Separação clara de responsabilidades em camadas (Domain, Application, Infra, API).
+- **Domain-Driven Design (DDD):** Foco em um domínio rico com Value Objects, Entidades e validações de negócio.
+
+### Padrões Implementados
+- **Repository & Unit of Work:** Abstração da persistência e garantia de consistência transacional.
+- **Factory Pattern:** Criação controlada e encapsulada de objetos de domínio.
 
 ## 🔗 Endpoint Principal
 ```
-POST /api/enderecos - Cadastra endereço a partir do CEP
+POST /api/v1/addresses - Cadastra endereço a partir do CEP
 ```
 
 ## 🚀 Como Executar
@@ -66,20 +69,3 @@ dotnet run --project src/CepApi.API
 
 # Acesse: https://localhost:7001/swagger
 ```
-
-## ⚙️ Configuração
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=CepApi;..."
-  },
-  "ViaCEP": {
-    "BaseUrl": "https://viacep.com.br/ws/"
-  },
-  "Cache": {
-    "ExpirationInMinutes": 60
-  },
-  "Serilog": {
-    "MinimumLevel": "Information"
-  }
-}
