@@ -9,7 +9,7 @@ API RESTful desenvolvida em .NET para o cadastro e gerenciamento de endereços, 
 * 🛡️ **Tratamento Global de Exceções**: Um Middleware centralizado para tratamento de erros, garantindo respostas de API consistentes.
 * 🔎 **Logging Estruturado**: Rastreamento completo das operações com logs estruturados (Serilog) em pontos-chave do fluxo.
 * 🔄 **Resiliência em Chamadas Externas**: Políticas de resiliência (Retry & Circuit Breaker) para proteger a comunicação com APIs externas.
-* 📖 **Documentação Swagger**: API documentada com Swagger/OpenAPI e detalhada através de comentários XML no código.
+* 📖 **Documentação Interativa**: API documentada com Swagger/OpenAPI e detalhada através de comentários XML no código.
 
 ## 🛠️ Tecnologias e Arquitetura
 * **.NET 9** - Framework para a construção da API
