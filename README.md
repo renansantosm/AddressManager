@@ -43,15 +43,15 @@ POST /api/v1/addresses - Cadastra endereço a partir do CEP
 
 ```bash
 # Clone o repositório
-git clone [url-do-repositorio]
-cd cep-api
+git clone https://github.com/renansantosm/AddressManager
+cd addressmanager
 
 # Execute com docker-compose (inclui SQL Server)
 docker-compose up -d
 
 # A aplicação estará disponível em:
-# http://localhost:8080
-# Swagger: http://localhost:8080/swagger
+# http://localhost:8081
+# Swagger: http://localhost:8081/swagger
 ```
 
 ### 🔧 Execução Local (Desenvolvimento)
