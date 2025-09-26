@@ -108,7 +108,7 @@ public class AddressService : IAddressService
             return await _viaCepClient.GetAddressByZipCodeAsync(normalizedZipCode);
         });
 
-        _logger.LogInformation("Creating Address entity with ViaCEP data for ZipCode {ZipCode}", addressDto.ZipCode);
+        _logger.LogInformation("Creating Address entity from ViaCEP data for ZipCode {ZipCode}", addressDto.ZipCode);
 
         var address = new Address(
             id: Guid.NewGuid(),
@@ -125,9 +125,7 @@ public class AddressService : IAddressService
         var addressCreated = await _unitOfWork.AddressRepository.AddAsync(addressWithOptionalFields);
         await _unitOfWork.Commit();
 
-        _logger.LogInformation("Address {AddressId} persisted to database", addressCreated.Id);
-
-        _logger.LogInformation("Successfully created Address with ID {AddressId} for ZipCode {ZipCode}", addressCreated.Id, addressDto.ZipCode);
+        _logger.LogInformation("Address {AddressId} created successfully for ZipCode {ZipCode}", addressCreated.Id, addressDto.ZipCode);
 
         return new AddressDto(
             Id: addressCreated.Id,
@@ -145,7 +143,7 @@ public class AddressService : IAddressService
 
     public async Task UpdateAddressAsync(UpdateAddressDto addressDto)
     {
-        _logger.LogInformation("Updating address with ID {AddressId}", addressDto.Id);
+        _logger.LogInformation("Updating address {AddressId}", addressDto.Id);
 
         var result = _updateValidator.Validate(addressDto);
 
@@ -154,7 +152,6 @@ public class AddressService : IAddressService
             throw new ValidationException(result.Errors);
         }
 
-        _logger.LogInformation("Fetching address entity with ID {AddressId} for update", addressDto.Id);
         var address = await GetAddressEntityByIdAsync(addressDto.Id);
 
         var addressWithOptionalFieldsUpdated = UpdateAddressOptionalFields(address, addressDto.Number, addressDto.Complement, addressDto.Reference);
@@ -162,7 +159,7 @@ public class AddressService : IAddressService
         await _unitOfWork.AddressRepository.UpdateAsync(addressWithOptionalFieldsUpdated);
         await _unitOfWork.Commit();
 
-        _logger.LogInformation("Address with ID {AddressId} successfully updated", addressDto.Id);
+        _logger.LogInformation("Address {AddressId} updated successfully", addressDto.Id);
 
         var cacheKey = $"address:{addressDto.Id}";
         _cache.Remove(cacheKey);
@@ -170,15 +167,14 @@ public class AddressService : IAddressService
 
     public async Task DeleteAddressAsync(Guid id)
     {
-        _logger.LogInformation("Deleting address with ID {AddressId}", id);
-
-        _logger.LogInformation("Fetching address entity with ID {AddressId} for deletion", id);
+        _logger.LogInformation("Deleting address {AddressId}", id);
+        
         var address = await GetAddressEntityByIdAsync(id);
 
         await _unitOfWork.AddressRepository.DeleteAsync(address);
         await _unitOfWork.Commit();
 
-        _logger.LogInformation("Address with ID {AddressId} successfully deleted", id);
+        _logger.LogInformation("Address {AddressId} deleted successfully", id);
 
         var cacheKey = $"address:{id}";
         _cache.Remove(cacheKey);

@@ -36,12 +36,12 @@ public class GlobalExceptionHandlerMiddleware
         }
         catch (AddressNotFoundException ex)
         {
-            _logger.LogInformation("Address not found on {RequestMethod} {RequestPath}", requestMethod, requestPath);
+            _logger.LogInformation("Address not found for {RequestMethod} {RequestPath}", requestMethod, requestPath);
             await WriteResponseAsync(context, StatusCodes.Status404NotFound, new { Error = ex.Message });
         }
         catch (DomainValidationException ex)
         {
-            _logger.LogInformation("Domain validation failed - {RequestMethod} {RequestPath}", requestMethod, requestPath);
+            _logger.LogInformation("Domain validation failed for {RequestMethod} {RequestPath}", requestMethod, requestPath);
             await WriteResponseAsync(context, StatusCodes.Status400BadRequest, new { Error = ex.Message });
         }
         catch (ExternalServiceException ex)
