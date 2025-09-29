@@ -13,7 +13,7 @@ public static class DatabaseExtensions
         {
             var serviceDb = scope.ServiceProvider.GetService<AppDbContext>();
 
-            serviceDb.Database.Migrate();
+            serviceDb?.Database.Migrate();
         }
     }
 }

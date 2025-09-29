@@ -20,7 +20,9 @@ public sealed class Neighborhood : ValueObject<Neighborhood>
         return new Neighborhood(value);
     }
 
-    protected Neighborhood() { }
+    #pragma warning disable CS8618
+    private Neighborhood() { }
+    #pragma warning restore CS8618
 
     protected override bool EqualsCore(Neighborhood other)
     {

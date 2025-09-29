@@ -32,7 +32,9 @@ public class Address : Entity
         Region = region;
     }
 
-    protected Address() { } 
+#pragma warning disable CS8618
+    private Address() { }
+#pragma warning restore CS8618
 
     public void UpdateNumber(string? number)
     {

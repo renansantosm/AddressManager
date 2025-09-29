@@ -25,7 +25,9 @@ public sealed class ZipCode : ValueObject<ZipCode>
         return new ZipCode(normalizedZipCode);
     }
 
-    protected ZipCode() { }
+    #pragma warning disable CS8618
+    private ZipCode() { }
+    #pragma warning restore CS8618
 
     protected override bool EqualsCore(ZipCode other)
     {

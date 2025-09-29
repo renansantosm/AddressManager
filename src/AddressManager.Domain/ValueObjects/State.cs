@@ -13,7 +13,12 @@ public sealed class State : ValueObject<State>
         Name = name;
         Abbreviation = abbreviation;
     }
-    protected State() { }
+
+
+
+    #pragma warning disable
+    private State() { }
+    #pragma warning restore CS8618
 
     public static State Create(string name, string abbreviation)
     {

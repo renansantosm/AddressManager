@@ -8,6 +8,6 @@ public interface IAddressRepository
     Task<Address?> GetByIdAsNoTrackingAsync(Guid id);
     Task<IEnumerable<Address>> GetAllAsync(int pageNumber, int pageSize);
     Task<Address> AddAsync(Address address);
-    Task UpdateAsync(Address address);
-    Task DeleteAsync(Address address);
+    void Update(Address address);
+    void Delete(Address address);
 }

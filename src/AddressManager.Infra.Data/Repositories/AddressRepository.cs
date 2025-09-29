@@ -42,12 +42,12 @@ public class AddressRepository : IAddressRepository
         return address;
     }
 
-    public async Task UpdateAsync(Address address)
+    public void Update(Address address)
     {
         _context.Addresses.Update(address);
     }
 
-    public async Task DeleteAsync(Address address)
+    public void Delete(Address address)
     {
         _context.Addresses.Remove(address);
     }

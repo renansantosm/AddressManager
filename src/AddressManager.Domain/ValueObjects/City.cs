@@ -20,7 +20,9 @@ public sealed class City : ValueObject<City>
         return new City(value);
     }
 
-    protected City() { }
+#pragma warning disable CS8618
+    private City() { }
+#pragma warning restore CS8618
 
     protected override bool EqualsCore(City other)
     {

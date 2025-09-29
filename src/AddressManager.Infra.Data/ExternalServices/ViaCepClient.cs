@@ -44,6 +44,6 @@ public class ViaCepClient : IViaCepClient
 
         _logger.LogInformation("Successfully retrieved address for ZipCode {ZipCode} from ViaCEP API", zipCode);
 
-        return new ViaCepData(objResponse.Cep, objResponse.Logradouro, objResponse.Bairro, objResponse.Localidade, objResponse.Estado, objResponse.Uf, objResponse.Regiao);
+        return new ViaCepData(objResponse!.Cep, objResponse.Logradouro, objResponse.Bairro, objResponse.Localidade, objResponse.Estado, objResponse.Uf, objResponse.Regiao);
     }
 }

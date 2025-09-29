@@ -20,7 +20,9 @@ public sealed class Region : ValueObject<Region>
         return new Region(value);
     }
 
-    protected Region() { }
+    #pragma warning disable CS8618
+    private Region() { }
+    #pragma warning restore CS8618
 
     protected override bool EqualsCore(Region other)
     {

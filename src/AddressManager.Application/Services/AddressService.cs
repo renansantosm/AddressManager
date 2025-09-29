@@ -113,7 +113,7 @@ public class AddressService : IAddressService
         var address = new Address(
             id: Guid.NewGuid(),
             ZipCode.Create(addressDto.ZipCode),
-            Street.Create(viaCepData.Street),
+            Street.Create(viaCepData!.Street),
             Neighborhood.Create(viaCepData.Neighborhood),
             City.Create(viaCepData.City),
             State.Create(viaCepData.State, viaCepData.StateAbbreviation),
@@ -156,7 +156,7 @@ public class AddressService : IAddressService
 
         var addressWithOptionalFieldsUpdated = UpdateAddressOptionalFields(address, addressDto.Number, addressDto.Complement, addressDto.Reference);
 
-        await _unitOfWork.AddressRepository.UpdateAsync(addressWithOptionalFieldsUpdated);
+        _unitOfWork.AddressRepository.Update(addressWithOptionalFieldsUpdated);
         await _unitOfWork.Commit();
 
         _logger.LogInformation("Address {AddressId} updated successfully", addressDto.Id);
@@ -171,7 +171,7 @@ public class AddressService : IAddressService
         
         var address = await GetAddressEntityByIdAsync(id);
 
-        await _unitOfWork.AddressRepository.DeleteAsync(address);
+        _unitOfWork.AddressRepository.Delete(address);
         await _unitOfWork.Commit();
 
         _logger.LogInformation("Address {AddressId} deleted successfully", id);

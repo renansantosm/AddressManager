@@ -20,7 +20,12 @@ public sealed class Street : ValueObject<Street>
 
         return new Street(value);
     }
-    protected Street() { } 
+
+
+    #pragma warning disable CS8618
+    private Street() { }
+    #pragma warning restore CS8618
+
 
     protected override bool EqualsCore(Street other)
     {
