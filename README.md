@@ -11,15 +11,15 @@ API RESTful desenvolvida em .NET para o cadastro e gerenciamento de endereços, 
 * 🔄 **Resiliência em Chamadas Externas**: Políticas de resiliência (Retry & Circuit Breaker) para proteger a comunicação com APIs externas.
 * 📖 **Documentação Interativa**: API documentada com Swagger/OpenAPI e detalhada através de comentários XML no código.
 
-## 🛠️ Tecnologias e Arquitetura
-* **.NET 9** - Framework para a construção da API
-* **Entity Framework Core** - ORM para acesso a dados
-* **SQL Server** - Banco de dados relacional
-* **Serilog** - Provedor de logging estruturado
-* **FluentValidation** - Biblioteca para validações de entrada
-* **IMemoryCache** - Cache em memória para otimização de performance
-* **Microsoft.Extensions.Http.Resilience** - Políticas de resiliência para chamadas HTTP
-* **Docker** - Containerização da aplicação e do banco de dados
+## 🛠️ Tecnologias Utilizadas
+* **.NET 9** - Framework principal
+* **Entity Framework Core** - ORM
+* **SQL Server** - Banco de dados
+* **Serilog** - Logging estruturado
+* **FluentValidation** - Validações de entrada
+* **IMemoryCache** - Sistema de cache
+* **Microsoft.Extensions.Http.Resilience** - Resiliência HTTP
+* **Docker & Docker Compose** - Containerização
 
 ## 🏗️ Arquitetura e Padrões de Design
 
@@ -104,3 +104,7 @@ dotnet run --project src/AddressManager.API
 # # http://localhost:5194/swagger
 # # https://localhost:7140/swagger
 ```
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para detalhes.
