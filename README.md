@@ -52,6 +52,12 @@ docker-compose up -d
 # A aplicação estará disponível em:
 # http://localhost:8081
 # Swagger: http://localhost:8081/swagger
+
+# Parar a aplicação
+docker-compose down
+
+# Parar a aplicação e remover dados do banco
+docker-compose down -v
 ```
 
 ### 🔧 Execução Local (Desenvolvimento)
