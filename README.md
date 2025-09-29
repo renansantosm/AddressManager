@@ -61,17 +61,20 @@ docker-compose down -v
 ```
 
 ### 🔧 Execução Local (Desenvolvimento)
-**Pré-requisitos:** .NET 9 SDK e SQL Server
+**Pré-requisitos:** .NET 9 SDK, SQL Server e Git
 
 ```bash
+# Clone o repositório
+git clone https://github.com/renansantosm/AddressManager
+cd addressmanager
+
 # Restaure as dependências
 dotnet restore
 
-# Execute migrations
-dotnet ef database update
-
 # Execute a aplicação
-dotnet run --project src/CepApi.API
+dotnet run --project src/AddressManager.API
 
-# Acesse: https://localhost:7001/swagger
+# Acesse a documentação Swagger
+# # http://localhost:5194/swagger
+# # https://localhost:7140/swagger
 ```
