@@ -4,8 +4,8 @@
 API RESTful desenvolvida em .NET para o cadastro e gerenciamento de endereços, com um diferencial : a automação, resiliência e validação de dados através da integração com a API externa ViaCEP.
 
 ## ✨ Funcionalidades Principais
-* 🔎 **Cadastro Automatizado**: Cria endereços completos a partir do CEP, garantindo dados precisos através da integração com a ViaCEP.
-* ⚡ **Cache Inteligente**: Otimiza o desempenho com cache (IMemoryCache) das respostas da ViaCEP, evitando chamadas repetitivas
+* 🔎 **Cadastro Automatizado**: Cria endereços completos a partir do CEP via integração com a ViaCEP.
+* ⚡ **Cache Inteligente**: Cacheia respostas da ViaCEP permitindo criar múltiplos endereços do mesmo CEP
 * 🛡️ **Tratamento Global de Exceções**: Um Middleware centralizado para tratamento de erros, garantindo respostas de API consistentes.
 * 🔎 **Logging Estruturado**: Rastreamento completo das operações com logs estruturados (Serilog) em pontos-chave do fluxo.
 * 🔄 **Resiliência em Chamadas Externas**: Políticas de resiliência (Retry & Circuit Breaker) para proteger a comunicação com APIs externas.
@@ -25,15 +25,41 @@ API RESTful desenvolvida em .NET para o cadastro e gerenciamento de endereços, 
 
 ### Princípios Arquiteturais
 - **Clean Architecture:** Separação clara de responsabilidades em camadas (Domain, Application, Infra, API).
-- **Domain-Driven Design (DDD):** Foco em um domínio rico com Value Objects, Entidades e validações de negócio.
+- **Domain-Driven Design (DDD):** Value Objects, encapsulamento de estado, validações e métodos de domínio.
 
 ### Padrões Implementados
-- **Repository & Unit of Work:** Abstração da persistência e garantia de consistência transacional.
+- **Repository Pattern** - Abstração da camada de persistência
+- **Unit of Work** - Controle transacional e coordenação de repositórios
 - **Factory Pattern:** Criação controlada e encapsulada de objetos de domínio.
 
 ## 🔗 Endpoint Principal
 ```
 POST /api/v1/addresses - Cadastra endereço a partir do CEP
+```
+**Request:**
+```json
+{
+  "zipCode": "01001000",
+  "number": "123",
+  "complement": "Apto 45",
+  "reference": "Próximo ao metrô"
+}
+```
+
+**Response:**
+```json
+{
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "zipCode": "01001000",
+  "street": "Praça da Sé",
+  "number": "123",
+  "complement": "Apto 45",
+  "reference": "Próximo ao metrô",
+  "neighborhood": "Sé",
+  "city": "São Paulo",
+  "state": "SP",
+  "region": "Sudeste"
+}
 ```
 
 ## 🚀 Como Executar
