@@ -26,13 +26,14 @@ builder.Services.AddSwaggerGen(c =>
     {
         Version = "v1",
         Title = "Address Manager",
-        Description = "Esta API permite a consulta de informações de endereços a partir de um CEP.  \n\nEla se integra ao serviço da ViaCEP para buscar os dados de logradouro, bairro, cidade, estado e região, e em seguida, salva essas informações em um banco de dados local.  \n\nO principal objetivo deste projeto é demonstrar a habilidade de realizar integrações com APIs de terceiros de forma robusta e eficiente, utilizando o serviço da ViaCEP para enriquecer os dados e fornecer um serviço centralizado para gerenciamento de endereços.",
+        Description = "Esta API permite o cadastro de endereços a partir de um CEP informado pelo cliente, com campos opcionais para complementar os dados (número, referência, complemento).  " +
+        "\n\nEla se integra automaticamente ao serviço ViaCEP para buscar os dados base (logradouro, bairro, cidade, estado) e cria um novo registro completo no banco de dados." +
+        "\n\nO projeto demonstra integração resiliente com APIs externas, implementando cache inteligente, tratamento de exceções e validações robustas para criar um serviço flexível de cadastro de endereços.",
         Contact = new OpenApiContact { Name = "Renan Moreira", Email = "renan.h.s.moreira@gmail.com", Url = new Uri("https://github.com/renansantosm") },
     });
 
     var xmlFile = $"{typeof(Program).Assembly.GetName().Name}.xml";
     c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFile));
-
 });
 
 builder.Services.AddApiVersioning(options =>
